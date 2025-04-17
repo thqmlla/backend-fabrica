@@ -1,15 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import {
-  listarIngredientesPorTipo,
-  adicionarIngrediente,
-  excluirIngrediente,
-} from './servico/ingredienteServico.js';
+import { listarIngredientesPorTipo, adicionarIngrediente, excluirIngrediente } from './servico/ingredienteServico.js';
+import { listarFeedbacks, adicionarFeedback, excluirFeedback } from './servico/feedbackServico.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// **Rotas para Ingredientes**
 // Listar ingredientes por tipo
 app.get('/ingredientes/:tipo', async (req, res) => {
   const { tipo } = req.params;
@@ -47,6 +45,40 @@ app.delete('/ingredientes/:id', async (req, res) => {
   }
 });
 
+// **Rotas para Feedbacks**
+// Listar feedbacks
+app.get('/feedbacks', async (req, res) => {
+  try {
+    const feedbacks = await listarFeedbacks();
+    res.json(feedbacks);
+  } catch (error) {
+    res.status(400).json({ erro: error.message });
+  }
+});
+
+// Adicionar feedback
+app.post('/feedbacks', async (req, res) => {
+  const { id_cliente, estrelas, comentario, foto } = req.body;
+  try {
+    const novoFeedback = await adicionarFeedback({ id_cliente, estrelas, comentario, foto });
+    res.status(201).json({ id_feedback: novoFeedback });
+  } catch (error) {
+    res.status(400).json({ erro: error.message });
+  }
+});
+
+// Excluir feedback
+app.delete('/feedbacks/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await excluirFeedback(id);
+    res.json({ mensagem: 'Feedback excluído com sucesso' });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao excluir feedback' });
+  }
+});
+
+// Porta padrão
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
