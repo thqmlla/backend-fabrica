@@ -7,8 +7,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// **Rotas para Ingredientes**
-// Listar ingredientes por tipo
+
+function formatarDataHora(data) {
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit',
+    hour12: false
+  };
+  const novaData = new Date(data); 
+  return novaData.toLocaleString('pt-BR', options); 
+}
+
+
 app.get('/ingredientes/:tipo', async (req, res) => {
   const { tipo } = req.params;
   try {
@@ -19,7 +33,6 @@ app.get('/ingredientes/:tipo', async (req, res) => {
   }
 });
 
-// Adicionar novo ingrediente
 app.post('/ingredientes', async (req, res) => {
   const { nome, tipo, valor } = req.body;
   try {
@@ -30,7 +43,6 @@ app.post('/ingredientes', async (req, res) => {
   }
 });
 
-// Excluir ingrediente por id
 app.delete('/ingredientes/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -45,29 +57,38 @@ app.delete('/ingredientes/:id', async (req, res) => {
   }
 });
 
-// **Rotas para Feedbacks**
-// Listar feedbacks
+
 app.get('/feedbacks', async (req, res) => {
   try {
     const feedbacks = await listarFeedbacks();
-    res.json(feedbacks);
+    
+    
+    const feedbacksFormatados = feedbacks.map(feedback => {
+      const dataFormatada = formatarDataHora(feedback.data_criacao); 
+      return {
+        ...feedback,
+        data_criacao: dataFormatada 
+      };
+    });
+
+    res.json(feedbacksFormatados);
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
 });
 
-// Adicionar feedback
+
 app.post('/feedbacks', async (req, res) => {
   const { id_cliente, estrelas, comentario, foto } = req.body;
   try {
     const novoFeedback = await adicionarFeedback({ id_cliente, estrelas, comentario, foto });
-    res.status(201).json({ id_feedback: novoFeedback });
+    res.status(201).json({ mensagem: 'Feedback adicionado com sucesso' });
   } catch (error) {
-    res.status(400).json({ erro: error.message });
+    res.status(400).json({ erro: 'Não foi possível cadastrar o feedback' });
   }
 });
 
-// Excluir feedback
+
 app.delete('/feedbacks/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -78,7 +99,7 @@ app.delete('/feedbacks/:id', async (req, res) => {
   }
 });
 
-// Porta padrão
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
