@@ -7,7 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 function formatarDataHora(data) {
   const options = { 
     year: 'numeric', 
@@ -61,8 +60,6 @@ app.delete('/ingredientes/:id', async (req, res) => {
 app.get('/feedbacks', async (req, res) => {
   try {
     const feedbacks = await listarFeedbacks();
-    
-    
     const feedbacksFormatados = feedbacks.map(feedback => {
       const dataFormatada = formatarDataHora(feedback.data_criacao); 
       return {
@@ -70,13 +67,11 @@ app.get('/feedbacks', async (req, res) => {
         data_criacao: dataFormatada 
       };
     });
-
     res.json(feedbacksFormatados);
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
 });
-
 
 app.post('/feedbacks', async (req, res) => {
   const { id_cliente, estrelas, comentario, foto } = req.body;
@@ -88,17 +83,19 @@ app.post('/feedbacks', async (req, res) => {
   }
 });
 
-
 app.delete('/feedbacks/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await excluirFeedback(id);
-    res.json({ mensagem: 'Feedback excluído com sucesso' });
+    const sucesso = await excluirFeedback(id);
+    if (sucesso) {
+      res.json({ mensagem: 'Feedback excluído com sucesso' });
+    } else {
+      res.status(404).json({ erro: 'Feedback não encontrado' });
+    }
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao excluir feedback' });
   }
 });
-
 
 const PORT = 3001;
 app.listen(PORT, () => {
