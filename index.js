@@ -21,7 +21,6 @@ function formatarDataHora(data) {
   return novaData.toLocaleString('pt-BR', options); 
 }
 
-
 app.get('/ingredientes/:tipo', async (req, res) => {
   const { tipo } = req.params;
   try {
@@ -56,7 +55,6 @@ app.delete('/ingredientes/:id', async (req, res) => {
   }
 });
 
-
 app.get('/feedbacks', async (req, res) => {
   try {
     const feedbacks = await listarFeedbacks();
@@ -77,11 +75,12 @@ app.post('/feedbacks', async (req, res) => {
   const { id_cliente, estrelas, comentario, foto } = req.body;
   try {
     const novoFeedback = await adicionarFeedback({ id_cliente, estrelas, comentario, foto });
-    res.status(201).json({ mensagem: 'Feedback adicionado com sucesso' });
+    res.status(201).json({ id: novoFeedback.id || novoFeedback, mensagem: 'Feedback adicionado com sucesso' });
   } catch (error) {
     res.status(400).json({ erro: 'Não foi possível cadastrar o feedback' });
   }
 });
+
 
 app.delete('/feedbacks/:id', async (req, res) => {
   const { id } = req.params;

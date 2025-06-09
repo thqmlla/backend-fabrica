@@ -14,7 +14,7 @@ async function adicionarFeedback({ id_cliente, estrelas, comentario, foto }) {
         id_cliente,
         estrelas,
         comentario,
-        foto
+        foto // aqui a foto vai ser base64, tipo uma stringzona
     ]);
     return resultado.insertId;
 }
