@@ -81,7 +81,6 @@ app.post('/feedbacks', async (req, res) => {
   }
 });
 
-
 app.delete('/feedbacks/:id', async (req, res) => {
   const { id } = req.params;
   try {
