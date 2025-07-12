@@ -1,25 +1,35 @@
 import express from 'express';
 import cors from 'cors';
-import { listarIngredientesPorTipo, adicionarIngrediente, excluirIngrediente } from './servico/ingredienteServico.js';
-import { listarFeedbacks, adicionarFeedback, excluirFeedback } from './servico/feedbackServico.js';
+import {
+  listarIngredientesPorTipo,
+  adicionarIngrediente,
+  excluirIngrediente
+} from './servico/ingredienteServico.js';
+import {
+  listarFeedbacks,
+  adicionarFeedback,
+  excluirFeedback
+} from './servico/feedbackServico.js';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+
+app.use(express.json({ limit: '5mb' }));
 
 function formatarDataHora(data) {
-  const options = { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    hour: '2-digit', 
-    minute: '2-digit', 
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
     second: '2-digit',
     hour12: false
   };
-  const novaData = new Date(data); 
-  return novaData.toLocaleString('pt-BR', options); 
+  const novaData = new Date(data);
+  return novaData.toLocaleString('pt-BR', options);
 }
+
 
 app.get('/ingredientes/:tipo', async (req, res) => {
   const { tipo } = req.params;
@@ -59,10 +69,10 @@ app.get('/feedbacks', async (req, res) => {
   try {
     const feedbacks = await listarFeedbacks();
     const feedbacksFormatados = feedbacks.map(feedback => {
-      const dataFormatada = formatarDataHora(feedback.data_criacao); 
+      const dataFormatada = formatarDataHora(feedback.data_criacao);
       return {
         ...feedback,
-        data_criacao: dataFormatada 
+        data_criacao: dataFormatada
       };
     });
     res.json(feedbacksFormatados);
@@ -74,8 +84,16 @@ app.get('/feedbacks', async (req, res) => {
 app.post('/feedbacks', async (req, res) => {
   const { id_cliente, estrelas, comentario, foto } = req.body;
   try {
-    const novoFeedback = await adicionarFeedback({ id_cliente, estrelas, comentario, foto });
-    res.status(201).json({ id: novoFeedback.id || novoFeedback, mensagem: 'Feedback adicionado com sucesso' });
+    const novoFeedback = await adicionarFeedback({
+      id_cliente,
+      estrelas,
+      comentario,
+      foto
+    });
+    res.status(201).json({
+      id: novoFeedback.id || novoFeedback,
+      mensagem: 'Feedback adicionado com sucesso'
+    });
   } catch (error) {
     res.status(400).json({ erro: 'Não foi possível cadastrar o feedback' });
   }
@@ -94,6 +112,7 @@ app.delete('/feedbacks/:id', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao excluir feedback' });
   }
 });
+
 
 const PORT = 3001;
 app.listen(PORT, () => {
