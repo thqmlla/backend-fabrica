@@ -14,6 +14,7 @@ import {
 const app = express();
 app.use(cors());
 
+
 app.use(express.json({ limit: '5mb' }));
 
 function formatarDataHora(data) {
@@ -65,6 +66,7 @@ app.delete('/ingredientes/:id', async (req, res) => {
   }
 });
 
+
 app.get('/feedbacks', async (req, res) => {
   try {
     const feedbacks = await listarFeedbacks();
@@ -95,6 +97,7 @@ app.post('/feedbacks', async (req, res) => {
       mensagem: 'Feedback adicionado com sucesso'
     });
   } catch (error) {
+    console.error('Erro no POST /feedbacks:', error); 
     res.status(400).json({ erro: 'Não foi possível cadastrar o feedback' });
   }
 });
