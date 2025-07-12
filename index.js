@@ -15,7 +15,8 @@ const app = express();
 app.use(cors());
 
 
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 function formatarDataHora(data) {
   const options = {
@@ -30,7 +31,6 @@ function formatarDataHora(data) {
   const novaData = new Date(data);
   return novaData.toLocaleString('pt-BR', options);
 }
-
 
 app.get('/ingredientes/:tipo', async (req, res) => {
   const { tipo } = req.params;
@@ -66,7 +66,6 @@ app.delete('/ingredientes/:id', async (req, res) => {
   }
 });
 
-
 app.get('/feedbacks', async (req, res) => {
   try {
     const feedbacks = await listarFeedbacks();
@@ -86,6 +85,7 @@ app.get('/feedbacks', async (req, res) => {
 app.post('/feedbacks', async (req, res) => {
   const { id_cliente, estrelas, comentario, foto } = req.body;
   try {
+    console.log(`Recebendo feedback - tamanho foto base64: ${foto?.length || 0} caracteres`);
     const novoFeedback = await adicionarFeedback({
       id_cliente,
       estrelas,
@@ -97,7 +97,7 @@ app.post('/feedbacks', async (req, res) => {
       mensagem: 'Feedback adicionado com sucesso'
     });
   } catch (error) {
-    console.error('Erro no POST /feedbacks:', error); 
+    console.error('Erro no POST /feedbacks:', error);
     res.status(400).json({ erro: 'Não foi possível cadastrar o feedback' });
   }
 });
@@ -115,7 +115,6 @@ app.delete('/feedbacks/:id', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao excluir feedback' });
   }
 });
-
 
 const PORT = 3001;
 app.listen(PORT, () => {
