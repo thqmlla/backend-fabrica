@@ -14,22 +14,26 @@ import {
 const app = express();
 app.use(cors());
 
-
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 function formatarDataHora(data) {
-  const options = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  };
-  const novaData = new Date(data);
-  return novaData.toLocaleString('pt-BR', options);
+  try {
+    const dataOriginal = new Date(data);
+    return new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Porto_Velho',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).format(dataOriginal);
+  } catch (err) {
+    console.error("Erro ao formatar data no backend:", err);
+    return data;
+  }
 }
 
 app.get('/ingredientes/:tipo', async (req, res) => {
